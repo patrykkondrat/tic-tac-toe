@@ -14,9 +14,4 @@ class CreatBoard:
             else:
                 out += line
         return out
-
-        
-
-        
-
-        
+  
