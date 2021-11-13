@@ -1,11 +1,14 @@
-import random as rand
+import random
 
 state = (('x','o','x'),
          ('x','o','x'),
          ('o','o','x'))
 
-class Game:    
-    def cell(c):
+class Game:
+    def __init__(self) -> None:
+        pass
+
+    def cell(self, c):
         try:
             if c == 'x':
                 return '  X  '
@@ -15,14 +18,14 @@ class Game:
             pass
         return '     '
     
-    def is_full(state):
+    def is_full(self, state):
         for col in state:
             for i in col:
                 if i != 'x' and i != 'o':
                     return False
         return True
     
-    def who_won(state):
+    def who_won(self, state):
         players = ['x', 'o']
         for i in [0, 1]:
             for row in state:
@@ -42,15 +45,22 @@ class Game:
         return -1, False
         
 
-    def is_valid_move(state, x, y):
+    def is_valid_move(self, state, x, y):
         row = state[x]
         if row[y] != 'x' and row[y] != 'o':
             return True
         return False
 
-    def do_game(player1, player2, stats=[]):
+    def new_state(self, state, x, y, character):
+        l = []
+        for row in state:
+            l.append(list(row))
+        l[x][y] = character
+        return (tuple(l[0]), tuple(l[1]), tuple(l[2]))
+
+    def do_game(self, player1, player2, stats=[]):
         state = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
-        is_end = False
+        ended = False
         full = False
         
         while not ended and not full:
@@ -70,3 +80,38 @@ class Game:
             stats.append("DRAW")    
             player1.learn(0.5)
             player2.learn(0.5)
+
+class Player:
+    def move(state):
+        return state
+    def learn(self, won):
+        pass
+
+class HumanPlayer(Player, Game):
+    def __init__(self, character):
+        self.character = character
+
+    def move(self, state):
+        flag = False
+        while not flag:
+            x = int(input(f'{self.character} row: '))
+            y = int(input(f'{self.character} col: '))
+            flag = is_valid_move(state, x, y)
+
+        return new_state(state, x, y, self.character)
+
+class RandomPlayer(Player, Game):
+    def __init__(self, character):
+        self.character=character
+        
+    def move(self, state):
+        flag = False
+        while not flag:
+            x = random.randrange(3)
+            y = random.randrange(3)
+            flag = is_valid_move(state, x, y)
+       
+        return new_state(state, x, y, self.character)
+
+a = Game
+print(a.do_game(HumanPlayer('x'), RandomPlayer('o'), []))
