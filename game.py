@@ -5,7 +5,7 @@ state = (('x','o','x'),
          ('o','o','x'))
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self):
         pass
 
     def cell(self, c):
@@ -42,7 +42,7 @@ class Game:
             if state[2][0]==state[1][1] and state[2][0]==state[0][2] and state[0][2]==players[i]:
                 return i, True 
         
-        return -1, False
+        return -1, FalseAdd-Type
         
 
     def is_valid_move(self, state, x, y):
@@ -58,28 +58,6 @@ class Game:
         l[x][y] = character
         return (tuple(l[0]), tuple(l[1]), tuple(l[2]))
 
-    def do_game(self, player1, player2, stats=[]):
-        state = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
-        ended = False
-        full = False
-        
-        while not ended and not full:
-            state = player1.move(state)
-            won, ended = who_won(state)
-            full = is_full(state)        
-            if not ended and not full:
-                state = player2.move(state)
-                won, ended = who_won(state)
-                full = is_full(state)
-            
-        if ended:
-            stats.append('Win 0' if won == 0 else 'Win 1')
-            player1.learn(1.0 if who_won==0 else 0.0)
-            player2.learn(1.0 if who_won==1 else 0.0)
-        if full and not ended:
-            stats.append("DRAW")    
-            player1.learn(0.5)
-            player2.learn(0.5)
 
 class Player:
     def move(state):
@@ -87,7 +65,7 @@ class Player:
     def learn(self, won):
         pass
 
-class HumanPlayer(Player, Game):
+class HumanPlayer(Game, Player):
     def __init__(self, character):
         self.character = character
 
@@ -96,11 +74,11 @@ class HumanPlayer(Player, Game):
         while not flag:
             x = int(input(f'{self.character} row: '))
             y = int(input(f'{self.character} col: '))
-            flag = is_valid_move(state, x, y)
+            flag = self.is_valid_move(state, x, y)
 
-        return new_state(state, x, y, self.character)
+        return self.new_state(state, x, y, self.character)
 
-class RandomPlayer(Player, Game):
+class RandomPlayer(Game, Player):
     def __init__(self, character):
         self.character=character
         
@@ -109,9 +87,34 @@ class RandomPlayer(Player, Game):
         while not flag:
             x = random.randrange(3)
             y = random.randrange(3)
-            flag = is_valid_move(state, x, y)
+            flag = self.is_valid_move(state, x, y)
        
-        return new_state(state, x, y, self.character)
+        return self.new_state(state, x, y, self.character)
 
-a = Game
-print(a.do_game(HumanPlayer('x'), RandomPlayer('o'), []))
+
+def do_game(player1, player2, stats=[]):
+    state = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+    ended = False
+    full = False
+    
+    while not ended and not full:
+        state = player1.move(state)
+        won, ended = who_won(state)
+        full = self.is_full(state)        
+        if not ended and not full:
+            state = player2.move(state)
+            won, ended = who_won(state)
+            full = is_full(state) 
+        
+    if ended:
+        stats.append('Win 0' if won == 0 else 'Win 1')
+        player1.learn(1.0 if won==0 else 0.0)
+        player2.learn(1.0 if won==1 else 0.0)
+    if full and not ended:
+        stats.append("DRAW")    
+        player1.learn(0.5)
+        player2.learn(0.5)
+a = HumanPlayer('x')
+b = HumanPlayer('o')
+ap =[]
+print(do_game(a, b, ap))
