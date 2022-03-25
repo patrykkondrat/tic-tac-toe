@@ -1,5 +1,6 @@
 
-from random import random
+from random import random, randrange
+
 
 
 class Board:
@@ -70,19 +71,20 @@ class Game(Board):
         
         return -1, False
     
-    def do_game(self,player1, player2 plot = True):
+    def do_game(self,player1, player2, plot = True):
         ended = False
         full = False
         while not ended and not full:
-            try:
-                for i in ['x', 'o']:
-                    self.make_move(i)
-                    if plot == True:
-                        print(self.state)
-                    who_won, ended = self.who_win(self.state)
-                    full = self.is_full(self.state)
-            except IndexError:
-                 print('Źle')
+            player1.make_move()
+            if plot is True:
+                print(self.state)
+            who_won, ended = self.who_win(self.state)
+            if not ended and not full:
+                player2.make_move()
+                who_won, ended = self.who_win(self.state)    
+            full = self.is_full(self.state)
+
+
         return print(f'Wygrał {self.who_win(self.state)[0]}')
         
 
@@ -90,7 +92,7 @@ class HumanPlayer(Game):
     def __init__(self, sign):
         self.sign = sign
     
-    def make_move(self, state, move):
+    def make_move(self, state):
         flag = False
         while not flag:
             x = int(input(f'wiersz {player}:'))
@@ -103,19 +105,21 @@ class ComputerPlayer(Game):
     def __init__(self, sign):
         self.sign = sign
     
-    def make_move(self, state, move):
+    def make_move(self ):
         flag = False
         while not flag:
-            x = random.randint(3)
-            y = random.randint(3)
+            x = randrange(3)
+            y = randrange(3)
             flag = self.is_valid_move(x, y)
-        state[x][y] = self.sign
+        self.state[x][y] = self.sign
 
 b = Game()
-print(b.do_game())
+a = ComputerPlayer('o')
+c = ComputerPlayer('x')
+print(b.do_game(a, c))
 
 # b.state = [[0,'x', 'o'], ['o','x', 0],[0, 'x', 0]] #kolumna 2
-#b.state = [['x','o', 'o'], [0, 'x', 'o'], [0, 0, 'x']] #ukos 1
+#b.state = [['x', 'o', 'o'], [0, 'x', 'o'], [0, 0, 'x']] #ukos 1
 #b.state = [[0,'o', 'o'], ['x', 'x', 'x'],[0, 0, 'o']] #wiersz 2
 
 # print(b.who_win(b.state))
