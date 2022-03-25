@@ -42,7 +42,7 @@ class Game:
             if state[2][0]==state[1][1] and state[2][0]==state[0][2] and state[0][2]==players[i]:
                 return i, True 
         
-        return -1, FalseAdd-Type
+        return -1, False
         
 
     def is_valid_move(self, state, x, y):
