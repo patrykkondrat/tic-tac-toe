@@ -120,13 +120,15 @@ class RandomPlayer(Player):
        
         return new_state(state, x, y, self.character)
 
-from collections import Counter
+# from collections import Counter
 
 stats = []
 
-for i in range(1_000):
-    do_game(RandomPlayer('x'), RandomPlayer('o'), stats, False)
+# for i in range(1_000):
+#     do_game(RandomPlayer('x'), RandomPlayer('o'), stats, False)
     
-co = Counter(stats)
-# print(co)
-print(sorted(co.elements()))
+# co = Counter(stats)
+# # print(co)
+# print(sorted(co.elements()))
+do_game(HumanPlayer('x'), RandomPlayer('o'), stats, False)
+

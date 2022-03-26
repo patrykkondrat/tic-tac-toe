@@ -99,11 +99,11 @@ def do_game(player1, player2, stats=[]):
     
     while not ended and not full:
         state = player1.move(state)
-        won, ended = who_won(state)
+        won, ended = Game.who_won(state)
         full = self.is_full(state)        
         if not ended and not full:
             state = player2.move(state)
-            won, ended = who_won(state)
+            won, ended = Game.who_won(state)
             full = is_full(state) 
         
     if ended:
@@ -116,5 +116,5 @@ def do_game(player1, player2, stats=[]):
         player2.learn(0.5)
 a = HumanPlayer('x')
 b = HumanPlayer('o')
-ap =[]
+ap = []
 print(do_game(a, b, ap))
