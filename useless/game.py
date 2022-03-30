@@ -97,11 +97,11 @@ def do_game(player1, player2, stats=[]):
     ended = False
     full = False
     
-    while not ended and not full:
+    while not ended or not full:
         state = player1.move(state)
         won, ended = Game.who_won(state)
         full = self.is_full(state)        
-        if not ended and not full:
+        if not ended or not full:
             state = player2.move(state)
             won, ended = Game.who_won(state)
             full = is_full(state) 

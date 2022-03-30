@@ -66,7 +66,7 @@ class Game(Board):
     def do_game(self, player1, player2, plot = True):
         ended = False
         full = False
-        while not ended and not full:
+        while not ended or not full:
             player1.make_move(self.state)
             # if plot is True:
             #     self.print_move()
@@ -74,7 +74,7 @@ class Game(Board):
             who_won, ended = self.who_win(self.state)
             print(who_won, ended)
             full = self.is_full(self.state)
-            if not ended and not full:
+            if not ended or not full:
                 player2.make_move(self.state)
                 # if plot is True:
                 #     self.print_move()
