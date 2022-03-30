@@ -32,7 +32,7 @@ class Game(Board):
     def is_full(self, state):
         for i in state:
             for j in i:
-                if j != 'x' or j != 'o':
+                if j != 'x' and j != 'o':
                     return False
         return True
 
@@ -66,24 +66,21 @@ class Game(Board):
     def do_game(self, player1, player2, plot = True):
         ended = False
         full = False
-        while not ended or not full:
+        while not ended and not full:
             player1.make_move(self.state)
-            # if plot is True:
-            #     self.print_move()
-            print(self.state)
             who_won, ended = self.who_win(self.state)
-            print(who_won, ended)
             full = self.is_full(self.state)
-            if not ended or not full:
+            if not ended and not full:
                 player2.make_move(self.state)
-                # if plot is True:
-                #     self.print_move()
-                print(self.state)
                 who_won, ended = self.who_win(self.state)
-            full = self.is_full(self.state)
-
-        return f'Wygrał {who_won}'
-
+                full = self.is_full(self.state)
+            # if full == True and ended == False:
+            #     return 'Draw'
+        
+        if who_won != -1:
+            return f'Wygrał {who_won}'
+        else:
+            return 'Remis'
         
 
 class HumanPlayer(Game):
@@ -113,6 +110,7 @@ class ComputerPlayer(Game):
             flag = self.is_valid_move(x, y, state)
         state[x][y] = self.sign
 
+
 for i in range(10):
     print(f'###################  {i+1}   ###################')
     b = Game()
@@ -120,7 +118,7 @@ for i in range(10):
     c = ComputerPlayer('o')
     print(b.do_game(a, c))
 
-print('Koniec')
+# print('Koniec')
 
 
 
