@@ -19,6 +19,27 @@ class Board:
      +     +     
      +     +     
 '''
+    def cell(self, x):
+        try:
+            if x.lower()=="x":
+                return " X "
+            if x.lower()=="o":
+                return " O "
+        except:
+            pass
+        return "   "
+
+    def print_state(self, state):
+        sep = "_"*11+"\n"
+        ret = []
+        n=0
+        for row in state:
+            ret.append("|".join(map(self.cell,row)))
+            n+=1
+            if n<3:
+                    ret.append(sep)
+        for line in ret:
+            print(line)
     # def print_move(self):
     #     # rows, cols = 1+x*4, 2+y*6  
     #     # self.board = ''.join()
@@ -68,14 +89,16 @@ class Game(Board):
         full = False
         while not ended and not full:
             player1.make_move(self.state)
+            if plot == True:
+                print(self.print_state(self.state))
             who_won, ended = self.who_win(self.state)
             full = self.is_full(self.state)
             if not ended and not full:
                 player2.make_move(self.state)
+                if plot == True:
+                    print(self.print_state(self.state))
                 who_won, ended = self.who_win(self.state)
                 full = self.is_full(self.state)
-            # if full == True and ended == False:
-            #     return 'Draw'
         
         if who_won != -1:
             return f'Wygrał {who_won}'
@@ -111,12 +134,12 @@ class ComputerPlayer(Game):
         state[x][y] = self.sign
 
 
-for i in range(10):
-    print(f'###################  {i+1}   ###################')
-    b = Game()
-    a = ComputerPlayer('x')
-    c = ComputerPlayer('o')
-    print(b.do_game(a, c))
+# for i in range(10):
+#     print(f'###################  {i+1}   ###################')
+#     b = Game()
+#     a = ComputerPlayer('x')
+#     c = ComputerPlayer('o')
+#     print(b.do_game(a, c))
 
 # print('Koniec')
 
@@ -129,3 +152,9 @@ for i in range(10):
 
 # print(b.who_win(b.state))
 
+
+
+# b = Game()
+# a = HumanPlayer('x')
+# c = ComputerPlayer('o')
+# print(b.do_game(a, c))
