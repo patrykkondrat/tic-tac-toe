@@ -6,9 +6,29 @@ from random import random, randrange
 class Board:
     def __init__(self):
         self.state = [[0,0,0],[0,0,0],[0,0,0]]
+        self.board = '''
+     +     +     
+     +     +     
+     +     +     
+=================
+     +     +     
+     +     +     
+     +     +     
+=================
+     +     +     
+     +     +     
+     +     +     
+'''
+    # def print_move(self):
+    #     # rows, cols = 1+x*4, 2+y*6  
+    #     # self.board = ''.join()
+    #     # self.board[1+x*4][2+y*6] = sign
+    #     s = ''
+    #     for i in self.board:
+    #         s += str(i) + '\n'
+    #     print(s)
 
 class Game(Board):
-
     def is_full(self, state):
         for i in state:
             for j in i:
@@ -17,31 +37,12 @@ class Game(Board):
         return True
 
     def is_valid_move(self, x, y, state):        
+        if x > 2 or y > 2:
+            return False
         row = state[x]
         if row[y] != 'x' and row[y] != 'o':
-            print(x,y)
             return True
         return False
-
-    # def is_valid_move(self, x, y, state):        
-    #     if state[x][y] == 'x' and state[x][y] == 'o':
-    #         return False
-    #     print(x,y)
-    #     return True
-
-    # def is_valid_move(self, x, y):
-    #     row = self.state[x]
-    #     if row[y] != 'x' and row[y] != 'o':
-    #         return True
-    #     return False
-
-    # def make_move(self, player):
-    #     flag = False
-    #     while not flag:
-    #         x = int(input(f'wiersz {player}:'))
-    #         y = int(input(f'kolumna{player}:'))
-    #         flag = self.is_valid_move(x, y)
-    #     self.state[x][y] = player
 
     def who_win(self, state):
         player = ['x', 'o']
@@ -62,29 +63,27 @@ class Game(Board):
         
         return -1, False
     
-    def do_game(self,player1, player2, plot = True):
+    def do_game(self, player1, player2, plot = True):
         ended = False
         full = False
-        moves = 0
         while not ended and not full:
             player1.make_move(self.state)
-            if plot is True:
-                print(self.state)
+            # if plot is True:
+            #     self.print_move()
+            print(self.state)
             who_won, ended = self.who_win(self.state)
-            moves += 1
+            print(who_won, ended)
+            full = self.is_full(self.state)
             if not ended and not full:
                 player2.make_move(self.state)
-                if plot is True:
-                    print(self.state)
+                # if plot is True:
+                #     self.print_move()
+                print(self.state)
                 who_won, ended = self.who_win(self.state)
             full = self.is_full(self.state)
-            moves += 1
-            # if moves > 9:
-            #     print('to nie tak'.upper())
-            #     break
 
+        return f'Wygrał {who_won}'
 
-        return f'Wygrał "{self.who_win(self.state)[0]}" w liczbie ruchów {moves}'
         
 
 class HumanPlayer(Game):
@@ -112,15 +111,16 @@ class ComputerPlayer(Game):
             x = int(randrange(3))
             y = int(randrange(3))
             flag = self.is_valid_move(x, y, state)
-            print(flag)
         state[x][y] = self.sign
-    
 
-b = Game()
-a = HumanPlayer('o')
-c = ComputerPlayer('x')
-print(b.do_game(a, c))
+for i in range(10):
+    print(f'###################  {i+1}   ###################')
+    b = Game()
+    a = ComputerPlayer('x')
+    c = ComputerPlayer('o')
+    print(b.do_game(a, c))
 
+print('Koniec')
 
 
 
