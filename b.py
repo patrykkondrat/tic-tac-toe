@@ -1,4 +1,4 @@
-
+import math
 from random import random, randrange
 
 
@@ -84,7 +84,7 @@ class Game(Board):
         
         return -1, False
     
-    def do_game(self, player1, player2, plot = True):
+    def do_game(self, player1, player2, stats = [], plot = True):
         ended = False
         full = False
         while not ended and not full:
@@ -100,13 +100,28 @@ class Game(Board):
                 who_won, ended = self.who_win(self.state)
                 full = self.is_full(self.state)
         
+            if ended:
+                stats.append("WIN 0" if who_won=="x" else "WIN 1")
+                player1.learn(1.0 if who_won==0 else 0.0)
+                player2.learn(1.0 if who_won==1 else 0.0)
+            if full and not ended:
+                stats.append("DRAW")    
+                player1.learn(0.5)
+                player2.learn(0.5)
+
+
         if who_won != -1:
             return f'Wygrał {who_won}'
         else:
             return 'Remis'
         
+class Player:
+    def move(state):
+        return state
+    def learn(self, won):
+        pass
 
-class HumanPlayer(Game):
+class HumanPlayer(Game, Player):
     def __init__(self, sign):
         super().__init__()
         self.sign = sign
@@ -120,7 +135,7 @@ class HumanPlayer(Game):
         state[x][y] = self.sign
 
 
-class ComputerPlayer(Game):
+class ComputerPlayer(Game, Player):
     def __init__(self, sign):
         super().__init__()
         self.sign = sign
@@ -133,15 +148,15 @@ class ComputerPlayer(Game):
             flag = self.is_valid_move(x, y, state)
         state[x][y] = self.sign
 
+stats = []
+for i in range(10):
+    print(f'###################  {i+1}   ###################')
+    b = Game()
+    a = ComputerPlayer('x')
+    c = ComputerPlayer('o')
+    print(b.do_game(a, c, stats))
 
-# for i in range(10):
-#     print(f'###################  {i+1}   ###################')
-#     b = Game()
-#     a = ComputerPlayer('x')
-#     c = ComputerPlayer('o')
-#     print(b.do_game(a, c))
-
-# print('Koniec')
+print('Koniec')
 
 
 
@@ -158,3 +173,5 @@ class ComputerPlayer(Game):
 # a = HumanPlayer('x')
 # c = ComputerPlayer('o')
 # print(b.do_game(a, c))
+
+
