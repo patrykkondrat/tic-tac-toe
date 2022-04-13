@@ -166,7 +166,7 @@ class QPlayer(Game, Player):
     def tuple2list(self, t):
         return [list(x) for x in t]
 
-    def initialize_q_table(self, state):    
+    def init_q_table(self, state):
         actions = {}
         for x in range(3):
             for y in range(3):
@@ -175,41 +175,16 @@ class QPlayer(Game, Player):
         self.q_table[self.list2tuple(state)] = actions
 
         return actions
-
+    
     def make_move(self, state):
-
+        state = self.list2tuple(state)
         if self.previous_state:
             actions = self.q_table.get(self.current_state, {})
-            if self.list2tuple(state) not in actions.keys():
-                actions[self.list2tuple(state)] = self.beta
-                self.q_table[self.current_state] = actions
-            
-        actions = self.q_table.get(self.list2tuple(state))
-        if not actions:
-            actions = self.initialize_q_table(state)
-
-        best_q = max(actions.values())
-
-        best_actions = [ action for action, q in actions.items() if q==best_q ]
- 
-        self.previous_state = state
-        self.current_state = sample(best_actions, 1)[0]
-
-        self.state = self.current_state
-
-    def learn(self, learned_weight):
+                if state not in actions.keys():
+                    actions[state] = self.beta
         
-        self.q_table[self.list2tuple(self.previous_state)][self.list2tuple(self.current_state)] = learned_weight
-        self.previous_state = None
-        
-        for state, actions in self.q_table.items():
-            for next_move, q in actions.items():
-                next_move_actions = self.q_table.get(next_move)
-                if next_move_actions:
-                    best_next_q = max(next_move_actions.values())
-                   
-                    actions[next_move] = (1 - self.alfa) * q + self.gamma * self.alfa * best_next_q                     
-                    self.q_table[state] = actions
+        actions = self.q_table.get(state)
+
 
 stats = []
 # for i in range(10):
