@@ -1,4 +1,5 @@
 import math
+from pickle import FALSE
 from random import randrange, sample
 from collections import Counter
 from copy import deepcopy
@@ -184,29 +185,37 @@ class QPlayer(Game, Player):
         self.q_table[self.list2tuple(state)] = actions
 
         return actions
+    
+    def is_diff_move(self, state, state1):
+        for x in range(3):
+            for y in range(3):
+                if state[x][y] != state1[x][y]:
+                    return (x, y)
+        return False
 
     def make_move(self, state):
         '''
-        state -> list_state create tuple_state
+        state -> list_state creates tuple_state
         '''
+        state_copy = deepcopy(self.list2tuple(state))
         if self.previous_state:
             actions = self.q_table.get(self.current_state, {})
-            if self.list2tuple(state) not in actions.keys():
-                actions[self.list2tuple(state)] = self.beta
+            if state_copy not in actions.keys():
+                actions[state_copy] = self.beta
                 self.q_table[self.current_state] = actions
             
-        actions = self.q_table.get(self.list2tuple(state))
+        actions = self.q_table.get(state_copy)
         if not actions:
             actions = self.initialize_q_table(state)
-
         best_q = max(actions.values())
 
-        best_actions = [ action for action, q in actions.items() if q==best_q ]
- 
-        self.previous_state = state
+        best_actions = [action for action, q in actions.items() if q==best_q]
+
+        self.previous_state = state_copy
         self.current_state = sample(best_actions, 1)[0]
 
-        state = self.tuple2list(self.current_state)
+        x, y = self.is_diff_move(state, self.tuple2list(self.current_state))
+        state[x][y] = self.sign
 
     def learn(self, learned_weight):
         
@@ -223,24 +232,31 @@ class QPlayer(Game, Player):
                     self.q_table[state] = actions
 
 stats = []
-# for i in range(3):
-#     print(f'###################  {i+1}   ###################')
-#     b = Game()
-#     a = ComputerPlayer('x')
-#     c = ComputerPlayer('o')
-#     b.do_game(a, c, stats)
+stats2 = []
+a = QPlayer('x')
+for i in range(3000):
+    #print(f'###################  {i+1}   ###################')
+    b = Game()
+    
+    c = ComputerPlayer('o')
+    b.do_game(a, c, stats, plot=False)
 
-
+for i in range(3000):
+    #print(f'###################  {i+1}   ###################')
+    b = Game()
+    a = ComputerPlayer('x')
+    c = ComputerPlayer('o')
+    b.do_game(a, c, stats2, plot=False)
 
 # # print('Koniec')
 b = Game()
 # a = HumanPlayer('x')
-# d = ComputerPlayer('o')
+d = ComputerPlayer('x')
 c = QPlayer('o')
-# b.do_game(d, c, stats, plot=True)
+b.do_game(d, c, stats, plot=True)
 
-state = [[0,'x',0],[0,'x',0],['o',0,0]]
-print(c.initialize_q_table(state))
+# state = [[0,'x',0],[0,'x',0],['o',0,0]]
+# print(c.state)
 
 # b.state = [['x', 'x', 'x'], ['x', 'x', 'x'], ['x', 'x', 'x']]
 # print(c.state)
@@ -250,6 +266,7 @@ print(c.initialize_q_table(state))
 # print(a.q_table)
 
 print(Counter(stats))
+print(Counter(stats2))
 
 
 
