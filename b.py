@@ -190,7 +190,7 @@ class QPlayer(Game, Player):
         for x in range(3):
             for y in range(3):
                 if state[x][y] != state1[x][y]:
-                    return (x, y)
+                    return True, (x, y)
         return False
 
     def make_move(self, state):
@@ -214,8 +214,10 @@ class QPlayer(Game, Player):
         self.previous_state = state_copy
         self.current_state = sample(best_actions, 1)[0]
 
-        x, y = self.is_diff_move(state, self.tuple2list(self.current_state))
-        state[x][y] = self.sign
+        #nie tędy droga
+        if self.is_diff_move(state, self.tuple2list(self.current_state))[0]:
+            print(f'{self.sign} wykonuje ruch na pozycji {self.is_diff_move(state, self.tuple2list(self.current_state))[1]}')
+        state = self.tuple2list(self.current_state)
 
     def learn(self, learned_weight):
         
@@ -234,19 +236,18 @@ class QPlayer(Game, Player):
 stats = []
 stats2 = []
 a = QPlayer('x')
-for i in range(3000):
+for i in range(1):
     #print(f'###################  {i+1}   ###################')
     b = Game()
-    
     c = ComputerPlayer('o')
     b.do_game(a, c, stats, plot=False)
 
-for i in range(3000):
-    #print(f'###################  {i+1}   ###################')
-    b = Game()
-    a = ComputerPlayer('x')
-    c = ComputerPlayer('o')
-    b.do_game(a, c, stats2, plot=False)
+# for i in range(3000):
+#     #print(f'###################  {i+1}   ###################')
+#     b = Game()
+#     a = ComputerPlayer('x')
+#     c = ComputerPlayer('o')
+#     b.do_game(a, c, stats2, plot=False)
 
 # # print('Koniec')
 b = Game()
