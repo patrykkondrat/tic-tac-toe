@@ -1,7 +1,7 @@
 import math
 from random import randrange, sample
-
-
+from collections import Counter
+from copy import deepcopy
 
 class Board:
     def __init__(self):
@@ -87,33 +87,35 @@ class Game(Board):
     def do_game(self, player1, player2, stats = [], plot = True):
         ended = False
         full = False
+        moves = 0
         while not ended and not full:
             player1.make_move(self.state)
             if plot == True:
                 print(self.print_state(self.state))
             who_won, ended = self.who_win(self.state)
             full = self.is_full(self.state)
+            moves += 1
             if not ended and not full:
-                player2.make_move(self.state)
+                state = player2.make_move(self.state)
                 if plot == True:
                     print(self.print_state(self.state))
                 who_won, ended = self.who_win(self.state)
                 full = self.is_full(self.state)
-        
-            if ended:
-                stats.append("WIN 0" if who_won=="x" else "WIN 1")
-                player1.learn(1.0 if who_won==0 else 0.0)
-                player2.learn(1.0 if who_won==1 else 0.0)
-            if full and not ended:
-                stats.append("DRAW")    
-                player1.learn(0.5)
-                player2.learn(0.5)
+                moves += 1
+        if ended:
+            stats.append("WIN 0" if who_won=="x" else "WIN 1")
+            player1.learn(1.0 if who_won==0 else 0.0)
+            player2.learn(1.0 if who_won==1 else 0.0)
+        if full and not ended:
+            stats.append("DRAW")    
+            player1.learn(0.5)
+            player2.learn(0.5)
 
 
         if who_won != -1:
-            return f'Wygrał {who_won}'
+            print(f'Wygrał {who_won}')
         else:
-            return 'Remis'
+            print('Remis')
         
 class Player:
     def move(state):
@@ -148,7 +150,6 @@ class ComputerPlayer(Game, Player):
             flag = self.is_valid_move(x, y, state)
         state[x][y] = self.sign
 
-
 class QPlayer(Game, Player):
     def __init__(self, sign):
         super().__init__()
@@ -166,18 +167,28 @@ class QPlayer(Game, Player):
     def tuple2list(self, t):
         return [list(x) for x in t]
 
-    def initialize_q_table(self, state):    
+    def add_move2state(self, state, x, y, sign):
+        newstate = deepcopy(state)
+        newstate[x][y] = sign
+        return newstate
+
+    def initialize_q_table(self, state):
+        '''
+        state -> list_state create tuple_state
+        '''   
         actions = {}
         for x in range(3):
             for y in range(3):
                 if self.is_valid_move(x, y, state):
-                    actions[self.list2tuple(state)] = self.beta
+                    actions[self.list2tuple(self.add_move2state(state, x, y, self.sign))] = self.beta
         self.q_table[self.list2tuple(state)] = actions
 
         return actions
 
     def make_move(self, state):
-
+        '''
+        state -> list_state create tuple_state
+        '''
         if self.previous_state:
             actions = self.q_table.get(self.current_state, {})
             if self.list2tuple(state) not in actions.keys():
@@ -195,7 +206,7 @@ class QPlayer(Game, Player):
         self.previous_state = state
         self.current_state = sample(best_actions, 1)[0]
 
-        self.state = self.current_state
+        state = self.tuple2list(self.current_state)
 
     def learn(self, learned_weight):
         
@@ -212,21 +223,40 @@ class QPlayer(Game, Player):
                     self.q_table[state] = actions
 
 stats = []
-# for i in range(10):
+# for i in range(3):
 #     print(f'###################  {i+1}   ###################')
 #     b = Game()
 #     a = ComputerPlayer('x')
 #     c = ComputerPlayer('o')
-#     print(b.do_game(a, c, stats))
+#     b.do_game(a, c, stats)
 
-# print('Koniec')
+
+
+# # print('Koniec')
 b = Game()
-a = QPlayer('x')
-c = ComputerPlayer('o')
-print(b.do_game(a, c, stats))
+# a = HumanPlayer('x')
+# d = ComputerPlayer('o')
+c = QPlayer('o')
+# b.do_game(d, c, stats, plot=True)
 
+state = [[0,'x',0],[0,'x',0],['o',0,0]]
+print(c.initialize_q_table(state))
+
+# b.state = [['x', 'x', 'x'], ['x', 'x', 'x'], ['x', 'x', 'x']]
+# print(c.state)
+# print(b.state)
 
 # print(a.initialize_q_table([[0, 'o', 0], [0, 'x', 0], [0, 'o', 0]]))
+# print(a.q_table)
+
+print(Counter(stats))
+
+
+
+
+
+
+
 
 # b.state = [[0, 'o', 0], [0, 'x', 0], [0, 'o', 0]] #kolumna 2
 # print(b.is_valid_move(1,1))
