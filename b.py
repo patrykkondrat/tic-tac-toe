@@ -253,6 +253,8 @@ print('qplayer:', Counter(stats))
 print('comp:', Counter(stats2))
 # pprint(a.q_table)
 
+
+
 def plot_games(qstats, label0, label1):
     games = range(40, len(qstats), 20)
     won0 = [ Counter(qstats[:x])['WIN 0']/x for x in games]
@@ -270,69 +272,3 @@ def plot_games(qstats, label0, label1):
     plt.show()
 
 plot_games(stats, 'QPlayer', 'ComputerPlayer')
-
-
-
-
-
-
-
-
-
-# # # print('Koniec')
-# b = Game()
-# a = HumanPlayer('x')
-# d = ComputerPlayer('x')
-# c = QPlayer('o')
-# b.do_game(d, c, stats, plot=True)
-
-# state = [[0,'x',0],[0,'x',0],['o',0,0]]
-# print(c.state)
-
-# b.state = [['x', 'x', 'x'], ['x', 'x', 'x'], ['x', 'x', 'x']]
-# print(c.state)
-# print(b.state)
-
-# print(a.initialize_q_table([[0, 'o', 0], [0, 'x', 0], [0, 'o', 0]]))
-# print(a.q_table)
-
-
-
-
-
-
-
-
-
-
-
-
-#test who_win
-# b.state = [[0, 'o', 0], [0, 'x', 0], [0, 'o', 0]] #kolumna 2
-# print(b.is_valid_move(1,1))
-#b.state = [['x', 'o', 'o'], [0, 'x', 'o'], [0, 0, 'x']] #ukos 1
-#b.state = [[0,'o', 'o'], ['x', 'x', 'x'],[0, 0, 'o']] #wiersz 2
-
-# print(b.who_win(b.state))
-
-
-
-#test init_q_table
-
-# b.state = [['o', 'o', 'x'], ['o', 'x', 'x'], [0, 'o', 0]]
-# for i in enumerate(c.initialize_q_table(b.state)):
-#     print(f'{i[0]} -> {i[1]}')
-
-#seems good
-
-
-#test make_move
-# def random_state():
-#     state = [[0,0,0],[0,0,0],[0,0,0]]
-#     for x in range(3):
-#         for y in range(3):
-#             state[x][y] = choice(['x','o'])
-#     return state
-# print(random_state())
-# print(b.state)
-# print(c.make_move(b.state))
