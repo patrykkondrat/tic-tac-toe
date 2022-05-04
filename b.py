@@ -1,8 +1,11 @@
 import math
 from pickle import FALSE
-from random import randrange, sample
+from random import randrange, sample, choice
 from collections import Counter
 from copy import deepcopy
+import matplotlib.pyplot as plt
+from pprint import pprint
+
 
 class Board:
     def __init__(self):
@@ -86,6 +89,7 @@ class Game(Board):
         return -1, False
     
     def do_game(self, player1, player2, stats = [], plot = True):
+        # self.state = [[0,0,0],[0,0,0],[0,0,0]]
         ended = False
         full = False
         moves = 0
@@ -95,28 +99,21 @@ class Game(Board):
                 print(self.print_state(self.state))
             who_won, ended = self.who_win(self.state)
             full = self.is_full(self.state)
-            moves += 1
             if not ended and not full:
                 state = player2.make_move(self.state)
                 if plot == True:
                     print(self.print_state(self.state))
                 who_won, ended = self.who_win(self.state)
                 full = self.is_full(self.state)
-                moves += 1
         if ended:
             stats.append("WIN 0" if who_won=="x" else "WIN 1")
-            player1.learn(1.0 if who_won==0 else 0.0)
-            player2.learn(1.0 if who_won==1 else 0.0)
+            player1.learn(1.0 if who_won==player1.sign else 0.0)
+            player2.learn(1.0 if who_won==player2.sign else 0.0)
         if full and not ended:
             stats.append("DRAW")    
             player1.learn(0.5)
             player2.learn(0.5)
 
-
-        if who_won != -1:
-            print(f'Wygrał {who_won}')
-        else:
-            print('Remis')
         
 class Player:
     def move(state):
@@ -203,25 +200,23 @@ class QPlayer(Game, Player):
             if state_copy not in actions.keys():
                 actions[state_copy] = self.beta
                 self.q_table[self.current_state] = actions
-            
+        
         actions = self.q_table.get(state_copy)
         if not actions:
             actions = self.initialize_q_table(state)
-        best_q = max(actions.values())
 
+        best_q = max(actions.values())
+        
         best_actions = [action for action, q in actions.items() if q==best_q]
 
         self.previous_state = state_copy
         self.current_state = sample(best_actions, 1)[0]
 
-        #nie tędy droga
-        if self.is_diff_move(state, self.tuple2list(self.current_state))[0]:
-            print(f'{self.sign} wykonuje ruch na pozycji {self.is_diff_move(state, self.tuple2list(self.current_state))[1]}')
-        state = self.tuple2list(self.current_state)
+        state[:] = self.tuple2list(self.current_state)
 
     def learn(self, learned_weight):
         
-        self.q_table[self.list2tuple(self.previous_state)][self.list2tuple(self.current_state)] = learned_weight
+        self.q_table[self.previous_state][self.current_state] = learned_weight
         self.previous_state = None
         
         for state, actions in self.q_table.items():
@@ -229,32 +224,67 @@ class QPlayer(Game, Player):
                 next_move_actions = self.q_table.get(next_move)
                 if next_move_actions:
                     best_next_q = max(next_move_actions.values())
-                   
+
                     actions[next_move] = (1 - self.alfa) * q + self.gamma * self.alfa * best_next_q                     
                     self.q_table[state] = actions
 
 stats = []
 stats2 = []
+
+
 a = QPlayer('x')
-for i in range(1):
-    #print(f'###################  {i+1}   ###################')
+b = QPlayer('o')
+c = ComputerPlayer('x')
+d = ComputerPlayer('o')
+h = HumanPlayer('o')
+for i in range(3):
     b = Game()
-    c = ComputerPlayer('o')
-    b.do_game(a, c, stats, plot=False)
+    b.do_game(a, h, stats, plot=1)
 
-# for i in range(3000):
-#     #print(f'###################  {i+1}   ###################')
-#     b = Game()
-#     a = ComputerPlayer('x')
-#     c = ComputerPlayer('o')
-#     b.do_game(a, c, stats2, plot=False)
 
-# # print('Koniec')
-b = Game()
+# print(max(a.q_table.values()))
+
+for i in range(1000):
+    e = Game()
+    e.do_game(c, d, stats2, plot=False)
+
+
+print('qplayer:', Counter(stats))
+print('comp:', Counter(stats2))
+# pprint(a.q_table)
+
+def plot_games(qstats, label0, label1):
+    games = range(40, len(qstats), 20)
+    won0 = [ Counter(qstats[:x])['WIN 0']/x for x in games]
+    won1 = [ Counter(qstats[:x])['WIN 1']/x for x in games]
+    draw = [ Counter(qstats[:x])['DRAW']/x for x in games]
+
+
+    fig = plt.figure()
+    plt.figure(figsize=(20,10))
+    plt.title('Results ratio')
+    player0, = plt.plot(games, won0, label=label0)
+    player1, = plt.plot(games, won1, label=label1)
+    draws, = plt.plot(games, draw, label="Draws")
+    plt.legend(handles=[player0, player1,  draws], frameon=True, loc="best",  fontsize=16)
+    plt.show()
+
+plot_games(stats, 'QPlayer', 'ComputerPlayer')
+
+
+
+
+
+
+
+
+
+# # # print('Koniec')
+# b = Game()
 # a = HumanPlayer('x')
-d = ComputerPlayer('x')
-c = QPlayer('o')
-b.do_game(d, c, stats, plot=True)
+# d = ComputerPlayer('x')
+# c = QPlayer('o')
+# b.do_game(d, c, stats, plot=True)
 
 # state = [[0,'x',0],[0,'x',0],['o',0,0]]
 # print(c.state)
@@ -266,8 +296,6 @@ b.do_game(d, c, stats, plot=True)
 # print(a.initialize_q_table([[0, 'o', 0], [0, 'x', 0], [0, 'o', 0]]))
 # print(a.q_table)
 
-print(Counter(stats))
-print(Counter(stats2))
 
 
 
@@ -276,6 +304,10 @@ print(Counter(stats2))
 
 
 
+
+
+
+#test who_win
 # b.state = [[0, 'o', 0], [0, 'x', 0], [0, 'o', 0]] #kolumna 2
 # print(b.is_valid_move(1,1))
 #b.state = [['x', 'o', 'o'], [0, 'x', 'o'], [0, 0, 'x']] #ukos 1
@@ -285,9 +317,22 @@ print(Counter(stats2))
 
 
 
-# b = Game()
-# a = HumanPlayer('x')
-# c = ComputerPlayer('o')
-# print(b.do_game(a, c))
+#test init_q_table
+
+# b.state = [['o', 'o', 'x'], ['o', 'x', 'x'], [0, 'o', 0]]
+# for i in enumerate(c.initialize_q_table(b.state)):
+#     print(f'{i[0]} -> {i[1]}')
+
+#seems good
 
 
+#test make_move
+# def random_state():
+#     state = [[0,0,0],[0,0,0],[0,0,0]]
+#     for x in range(3):
+#         for y in range(3):
+#             state[x][y] = choice(['x','o'])
+#     return state
+# print(random_state())
+# print(b.state)
+# print(c.make_move(b.state))
