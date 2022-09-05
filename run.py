@@ -20,7 +20,6 @@ if __name__ == '__main__':
         b = Game()
         b.do_game(qplayer1, computerplayer2, stats, plot=False)
 
-
     for i in range(500):
         e = Game()
         e.do_game(aqplayer1, computerplayer2, stats2, plot=False)

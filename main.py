@@ -1,4 +1,3 @@
-from pickle import FALSE
 from random import randrange, sample, choice
 from collections import Counter
 from copy import deepcopy
