@@ -16,18 +16,18 @@ if __name__ == '__main__':
     aqplayer1 = AnnelingQPlayer('x')
     aqplayer2 = AnnelingQPlayer('o')
 
-    for i in range(1):
+    for i in range(500):
         b = Game()
         b.do_game(qplayer1, computerplayer2, stats, plot=False)
 
 
-    # for i in range(500):
-    #     e = Game()
-    #     e.do_game(aqplayer1, computerplayer2, stats2, plot=False)
+    for i in range(500):
+        e = Game()
+        e.do_game(aqplayer1, computerplayer2, stats2, plot=False)
 
-    # for i in range(500):
-    #     f = Game()
-    #     f.do_game(aqplayer1, qplayer2, stats3, plot=False)
+    for i in range(500):
+        f = Game()
+        f.do_game(aqplayer1, qplayer2, stats3, plot=False)
 
     print('qplayer:', Counter(stats))
     print('comp:', Counter(stats2))
