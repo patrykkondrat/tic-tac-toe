@@ -1,11 +1,10 @@
-import math
 from pickle import FALSE
 from random import randrange, sample, choice
 from collections import Counter
 from copy import deepcopy
 import matplotlib.pyplot as plt
 from pprint import pprint
-
+import json, sys, os, math
 
 class Board:
     def __init__(self):
@@ -44,14 +43,6 @@ class Board:
                     ret.append(sep)
         for line in ret:
             print(line)
-    # def print_move(self):
-    #     # rows, cols = 1+x*4, 2+y*6  
-    #     # self.board = ''.join()
-    #     # self.board[1+x*4][2+y*6] = sign
-    #     s = ''
-    #     for i in self.board:
-    #         s += str(i) + '\n'
-    #     print(s)
 
 class Game(Board):
     def is_full(self, state):
@@ -87,7 +78,7 @@ class Game(Board):
                     return winner, True
         
         return -1, False
-    
+
     def do_game(self, player1, player2, stats = [], plot = True):
         # self.state = [[0,0,0],[0,0,0],[0,0,0]]
         ended = False
@@ -114,7 +105,6 @@ class Game(Board):
             player1.learn(0.5)
             player2.learn(0.5)
 
-        
 class Player:
     def move(state):
         return state
@@ -134,7 +124,6 @@ class HumanPlayer(Game, Player):
             flag = self.is_valid_move(x, y, state)
         state[x][y] = self.sign
 
-
 class ComputerPlayer(Game, Player):
     def __init__(self, sign):
         super().__init__()
@@ -151,8 +140,13 @@ class ComputerPlayer(Game, Player):
 class QPlayer(Game, Player):
     def __init__(self, sign):
         super().__init__()
-        self.sign = sign                     
-        self.q_table = {}
+               
+        if os.path.isfile('./q.table.json'):
+            self.q_table = json.load('./q.table.json')
+        else:
+            self.q_table = {}
+
+        self.sign = sign 
         self.alfa = 0.15
         self.beta = 0.60
         self.gamma = 0.99
@@ -182,7 +176,7 @@ class QPlayer(Game, Player):
         self.q_table[self.list2tuple(state)] = actions
 
         return actions
-    
+
     def is_diff_move(self, state, state1):
         for x in range(3):
             for y in range(3):
@@ -218,7 +212,7 @@ class QPlayer(Game, Player):
         
         self.q_table[self.previous_state][self.current_state] = learned_weight
         self.previous_state = None
-        
+
         for state, actions in self.q_table.items():
             for next_move, q in actions.items():
                 next_move_actions = self.q_table.get(next_move)
@@ -227,35 +221,23 @@ class QPlayer(Game, Player):
 
                     actions[next_move] = (1 - self.alfa) * q + self.gamma * self.alfa * best_next_q                     
                     self.q_table[state] = actions
+        
+        if os.path.exists('./q_table.json'):
+            pass
+        else:
+            with open('q_table.json', 'a') as f:
+                f.write(str(self.q_table))
 
-stats = []
-stats2 = []
+class AnnelingQPlayer(QPlayer):
+    def __init__(self, sign):
+        super().__init__(sign)
 
+    def learn(self, learned_weight):
+        global alfa
+        self.alfa *= self.gamma
+        super().learn(learned_weight)
 
-a = QPlayer('x')
-b = QPlayer('o')
-c = ComputerPlayer('x')
-d = ComputerPlayer('o')
-h = HumanPlayer('o')
-for i in range(3):
-    b = Game()
-    b.do_game(a, h, stats, plot=1)
-
-
-# print(max(a.q_table.values()))
-
-for i in range(1000):
-    e = Game()
-    e.do_game(c, d, stats2, plot=False)
-
-
-print('qplayer:', Counter(stats))
-print('comp:', Counter(stats2))
-# pprint(a.q_table)
-
-
-
-def plot_games(qstats, label0, label1):
+def plot_games(qstats, label0, label1, save=False):
     games = range(40, len(qstats), 20)
     won0 = [ Counter(qstats[:x])['WIN 0']/x for x in games]
     won1 = [ Counter(qstats[:x])['WIN 1']/x for x in games]
@@ -270,5 +252,8 @@ def plot_games(qstats, label0, label1):
     draws, = plt.plot(games, draw, label="Draws")
     plt.legend(handles=[player0, player1,  draws], frameon=True, loc="best",  fontsize=16)
     plt.show()
+    if save is True:
+        plt.savefig()
 
-plot_games(stats, 'QPlayer', 'ComputerPlayer')
+
+
