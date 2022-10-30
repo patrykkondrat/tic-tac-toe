@@ -1,10 +1,9 @@
-from pickle import FALSE
 from random import randrange, sample, choice
 from collections import Counter
 from copy import deepcopy
 import matplotlib.pyplot as plt
 from pprint import pprint
-import json, sys, os, math
+import json, os
 
 class Board:
     def __init__(self):
@@ -140,7 +139,7 @@ class ComputerPlayer(Game, Player):
 class QPlayer(Game, Player):
     def __init__(self, sign):
         super().__init__()
-               
+
         if os.path.isfile('./q.table.json'):
             self.q_table = json.load('./q.table.json')
         else:
